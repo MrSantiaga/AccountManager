@@ -4,8 +4,11 @@ namespace AccountManager
 {
 	internal class Program
 	{
+		static DataBase dataBase;
+		static string path = "C:\\Users\\Alexa\\Desktop\\test\\Dates.json";
 		static void Main(string[] args)
 		{
+			dataBase = InitData();
 			Menu();
 		}
 
@@ -25,8 +28,8 @@ namespace AccountManager
 				{
 					case 1:
 						{
-							UserCredentials credentials = new UserCredentials();
-							Encryptor first = new Encryptor();
+							UserData credentials = new UserData();
+							using Encryptor first = new Encryptor();
 							Console.WriteLine("Add your dates to sign. \nAdd your login");
 							string login = Console.ReadLine();
 							Console.WriteLine("Add your password");
@@ -62,6 +65,13 @@ namespace AccountManager
 							}
 							break;
 						}
+					case 3:
+						{
+							GetSearch();
+							Console.WriteLine("Press key to continue");
+							Console.ReadKey();
+							break;
+						}
 				}
 			}
 		}
@@ -86,10 +96,43 @@ namespace AccountManager
 
 		public static void GetUserCreditJson(string login, string encryptedPassword)
 		{
-			string path = $"C:\\Users\\Alexa\\Desktop\\test\\{login}_{DateTime.Now:dd-MM-yyyy_hh-mm-ss}.json";
-			string resultTry = JsonConvert.SerializeObject(encryptedPassword);
-			File.WriteAllText(path, $"login is \"{login}\"  password is {resultTry}");
+			UserData user = new UserData();
+			user.Login = login;
+			user.Password = encryptedPassword;
+			dataBase.AllUserData.Add(user);
+			string resultTry = JsonConvert.SerializeObject(dataBase);
+			File.WriteAllText(path, resultTry);
 		}
+
+		private static DataBase InitData()
+		{
+			bool isExist = File.Exists(path);
+			if (isExist)
+			{
+				string json = File.ReadAllText(path);
+				return JsonConvert.DeserializeObject<DataBase>(json);
+			}
+			dataBase = new DataBase();
+			dataBase.AllUserData = new List<UserData>();
+			return dataBase;
+		}
+
+		public static void GetSearch()
+		{
+			Console.WriteLine("Enter your login");
+			string userLogin = Console.ReadLine();
+			foreach (UserData user in dataBase.AllUserData)
+			{
+				if (user.Login == userLogin)
+				{
+					Console.WriteLine("This login is exist");
+					Console.WriteLine($"your login is {user.Login} password is {user.Password}");
+					return;
+				}
+			}
+			Console.WriteLine("This login is not founded");
+		}
+
 
 	}
 }

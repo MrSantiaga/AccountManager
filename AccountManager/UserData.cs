@@ -1,6 +1,6 @@
 ﻿namespace AccountManager
 {
-	internal class UserCredentials
+	internal class UserData
 	{
 		public string Login { get; set; }
 		public string Password { get; set; }
