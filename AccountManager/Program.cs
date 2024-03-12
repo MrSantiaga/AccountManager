@@ -88,7 +88,6 @@ namespace AccountManager
 		{
 			string path = $"C:\\Users\\Alexa\\Desktop\\test\\{login}_{DateTime.Now:dd-MM-yyyy_hh-mm-ss}.json";
 			string resultTry = JsonConvert.SerializeObject(encryptedPassword);
-
 			File.WriteAllText(path, $"login is \"{login}\"  password is {resultTry}");
 		}
 
