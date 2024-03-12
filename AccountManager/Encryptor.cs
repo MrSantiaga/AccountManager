@@ -8,10 +8,9 @@ namespace AccountManager
 		private Aes _aes;
 		private byte[] _vector;
 
-		public Encryptor() : this("ho-ho-ho")
-		{
+		public Encryptor() : this("123Ioliutio98")
+		{ }
 
-		}
 		public Encryptor(string vector)
 		{
 			_aes = Aes.Create();
@@ -36,21 +35,27 @@ namespace AccountManager
 				sw.Write(password);
 			}
 			byte[] encryptedPassword = ms.ToArray();
-			return Convert.ToBase64String(encryptedPassword);
-
+			string encryptedPasswordText = Convert.ToBase64String(encryptedPassword);
+			return encryptedPasswordText;
 		}
+
 		private byte[] GetLogin(string login)
 		{
 			byte[] loginBytes = Encoding.UTF8.GetBytes(login);
 			using SHA256 sha256 = SHA256.Create();
 			return sha256.ComputeHash(loginBytes);
 		}
+
 		private byte[] GetVector(string vector)
 		{
 			byte[] keyBytes = Encoding.UTF8.GetBytes(vector);
 			using MD5 mD5 = MD5.Create();
 			return mD5.ComputeHash(keyBytes);
 		}
+
+
+
+
 	}
 }
 
