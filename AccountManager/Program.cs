@@ -85,13 +85,18 @@ namespace AccountManager
 							Console.ReadKey();
 							break;
 						}
+					case 4:
+						{
+							GetDelete();
+							break;
+						}
 				}
 			}
 		}
 
 		private static void PrintMainMenu()
 		{
-			Console.Clear();
+			//Console.Clear();
 			Console.WriteLine("Welcome to Account Manager");
 			Console.WriteLine("Menu:");
 			Console.WriteLine("1. - Add new credentails ");
@@ -163,6 +168,41 @@ namespace AccountManager
 			Console.WriteLine("This login is not founded");
 		}
 
+		public static void GetDelete()
+		{
+			Console.WriteLine("Enter your login");
+			string userLogin = Console.ReadLine();
+			foreach (UserData user in dataBase.AllUserData)
+			{
+				if (user.Login == userLogin)
+				{
+					Console.WriteLine("This login is exist");
+					//Console.WriteLine($"your login is {user.Login} password is {user.Password}");
+					Console.WriteLine($"Are you sure want to delete {user.Login}? \n1.Yes \n2.No");
+					int answer = int.Parse(Console.ReadLine());
+					if (answer == 1)
+					{
+						using Encryptor first = new Encryptor();
+						Console.WriteLine("Enter your key");
+						string key = Console.ReadLine();
+						try
+						{
+							string toDecrypt = first.Decrypt(user.Password, key);
+							dataBase.AllUserData.Remove(user);
+							string resultTry = JsonConvert.SerializeObject(dataBase);
+							File.WriteAllText(path, resultTry);
+							Console.WriteLine($"This user is deleted");
+						}
+						catch (Exception)
+						{
+							Console.WriteLine("Your code is wrong. Try again");
+						}
+					}
+					return;
+				}
+			}
+			Console.WriteLine("This login is not founded");
+		}
 
 	}
 }
