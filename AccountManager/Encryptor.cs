@@ -23,10 +23,10 @@ namespace AccountManager
 			_aes.Dispose();
 		}
 
-		public string Encrypt(string password, string login)
+		public string Encrypt(string password, string key)
 		{
-			byte[] loginBytes = GetLogin(login);
-			_aes.Key = loginBytes;
+			byte[] keyBytes = GetKey(key);
+			_aes.Key = keyBytes;
 			ICryptoTransform encryptor = _aes.CreateEncryptor();
 			using MemoryStream ms = new MemoryStream();
 			using CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
@@ -39,11 +39,24 @@ namespace AccountManager
 			return encryptedPasswordText;
 		}
 
-		private byte[] GetLogin(string login)
+		public string Decrypt(string encryptedText, string key)
 		{
-			byte[] loginBytes = Encoding.UTF8.GetBytes(login);
+			byte[] decryptedBytes = Convert.FromBase64String(encryptedText);
+
+			byte[] keyByte = GetKey(key);
+			_aes.Key = keyByte;
+			ICryptoTransform encryptor = _aes.CreateDecryptor();
+			using MemoryStream ms = new MemoryStream(decryptedBytes);
+			using CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Read);
+			using StreamReader sr = new StreamReader(cs);
+			return sr.ReadToEnd();
+		}
+
+		private byte[] GetKey(string key)
+		{
+			byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 			using SHA256 sha256 = SHA256.Create();
-			return sha256.ComputeHash(loginBytes);
+			return sha256.ComputeHash(keyBytes);
 		}
 
 		private byte[] GetVector(string vector)

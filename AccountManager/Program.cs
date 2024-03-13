@@ -28,21 +28,23 @@ namespace AccountManager
 				{
 					case 1:
 						{
-							UserData credentials = new UserData();
+							UserData user1 = new UserData();
 							using Encryptor first = new Encryptor();
 							Console.WriteLine("Add your dates to sign. \nAdd your login");
 							string login = Console.ReadLine();
 							Console.WriteLine("Add your password");
 							string password = Console.ReadLine();
-							Console.WriteLine("Confirm your password, please");
-							string passwordRepeat = Console.ReadLine();
-							if (password == passwordRepeat)
+							Console.WriteLine("Add your key");
+							string key = Console.ReadLine();
+							Console.WriteLine("Confirm your key, please");
+							string keyCofirm = Console.ReadLine();
+							if (key == keyCofirm)
 							{
 								Console.WriteLine("Success");
-								credentials.Login = login;
-								credentials.Password = first.Encrypt(password, login);
-								Console.WriteLine($"User login is  {credentials.Login}  user password is {credentials.Password}");
-								GetUserCreditJson(credentials.Login, credentials.Password);
+								user1.Login = login;
+								user1.Password = first.Encrypt(password, key);
+								Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
+								GetUserCreditJson(user1.Login, user1.Password);
 							}
 							else
 							{
@@ -63,6 +65,17 @@ namespace AccountManager
 							{
 								continue;
 							}
+							break;
+						}
+					case 2:
+						{
+							Console.WriteLine("All logins:");
+							foreach (UserData user in dataBase.AllUserData)
+							{
+								Console.WriteLine(user.Login);
+							}
+							Console.WriteLine("Press key to continue");
+							Console.ReadKey();
 							break;
 						}
 					case 3:
@@ -127,6 +140,23 @@ namespace AccountManager
 				{
 					Console.WriteLine("This login is exist");
 					Console.WriteLine($"your login is {user.Login} password is {user.Password}");
+					Console.WriteLine("Do you want to decrypt your password? \n1.Yes \n2.No");
+					int answer = int.Parse(Console.ReadLine());
+					if (answer == 1)
+					{
+						using Encryptor first = new Encryptor();
+						Console.WriteLine("Enter your key");
+						string key = Console.ReadLine();
+						try
+						{
+							string toDecrypt = first.Decrypt(user.Password, key);
+							Console.WriteLine($"Your password is {toDecrypt}");
+						}
+						catch (Exception)
+						{
+							Console.WriteLine("Your code is wrong. Try again");
+						}
+					}
 					return;
 				}
 			}
