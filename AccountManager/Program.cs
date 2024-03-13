@@ -28,10 +28,19 @@ namespace AccountManager
 				{
 					case 1:
 						{
-							UserData user1 = new UserData();
-							using Encryptor first = new Encryptor();
 							Console.WriteLine("Add your dates to sign. \nAdd your login");
 							string login = Console.ReadLine();
+							foreach (UserData user in dataBase.AllUserData)
+							{
+								while (user.Login == login)
+								{
+									Console.ForegroundColor = ConsoleColor.Yellow;
+									Console.WriteLine("This login is used");
+									Console.ResetColor();
+									Console.WriteLine("Try again");
+									login = Console.ReadLine();
+								}
+							}
 							Console.WriteLine("Add your password");
 							string password = Console.ReadLine();
 							Console.WriteLine("Add your key");
@@ -40,11 +49,8 @@ namespace AccountManager
 							string keyCofirm = Console.ReadLine();
 							if (key == keyCofirm)
 							{
+								AddUser(login, password, key);
 								Console.WriteLine("Success");
-								user1.Login = login;
-								user1.Password = first.Encrypt(password, key);
-								Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
-								GetUserCreditJson(user1.Login, user1.Password);
 							}
 							else
 							{
@@ -60,7 +66,6 @@ namespace AccountManager
 								PrintReturnMainMenu();
 								tryParse2 = int.TryParse(Console.ReadLine(), out answerRetutn);
 							}
-
 							if (answerRetutn == 1)
 							{
 								continue;
@@ -80,7 +85,9 @@ namespace AccountManager
 						}
 					case 3:
 						{
-							GetSearch();
+							Console.WriteLine("Enter your login");
+							string userLogin = Console.ReadLine();
+							GetSearch(userLogin);
 							Console.WriteLine("Press key to continue");
 							Console.ReadKey();
 							break;
@@ -96,7 +103,7 @@ namespace AccountManager
 
 		private static void PrintMainMenu()
 		{
-			//Console.Clear();
+			Console.Clear();
 			Console.WriteLine("Welcome to Account Manager");
 			Console.WriteLine("Menu:");
 			Console.WriteLine("1. - Add new credentails ");
@@ -112,7 +119,7 @@ namespace AccountManager
 		}
 
 
-		public static void GetUserCreditJson(string login, string encryptedPassword)
+		public static void AddUserDatesJson(string login, string encryptedPassword)
 		{
 			UserData user = new UserData();
 			user.Login = login;
@@ -135,10 +142,8 @@ namespace AccountManager
 			return dataBase;
 		}
 
-		public static void GetSearch()
+		public static void GetSearch(string userLogin)
 		{
-			Console.WriteLine("Enter your login");
-			string userLogin = Console.ReadLine();
 			foreach (UserData user in dataBase.AllUserData)
 			{
 				if (user.Login == userLogin)
@@ -202,6 +207,17 @@ namespace AccountManager
 				}
 			}
 			Console.WriteLine("This login is not founded");
+		}
+
+
+		public static void AddUser(string login, string password, string key)
+		{
+			UserData user1 = new UserData();
+			using Encryptor first = new Encryptor();
+			user1.Login = login;
+			user1.Password = first.Encrypt(password, key);
+			Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
+			AddUserDatesJson(user1.Login, user1.Password);
 		}
 
 	}

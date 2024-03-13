@@ -42,7 +42,6 @@ namespace AccountManager
 		public string Decrypt(string encryptedText, string key)
 		{
 			byte[] decryptedBytes = Convert.FromBase64String(encryptedText);
-
 			byte[] keyByte = GetKey(key);
 			_aes.Key = keyByte;
 			ICryptoTransform encryptor = _aes.CreateDecryptor();
@@ -65,10 +64,6 @@ namespace AccountManager
 			using MD5 mD5 = MD5.Create();
 			return mD5.ComputeHash(keyBytes);
 		}
-
-
-
-
 	}
 }
 
