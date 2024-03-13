@@ -50,11 +50,15 @@ namespace AccountManager
 							if (key == keyCofirm)
 							{
 								AddUser(login, password, key);
+								Console.ForegroundColor = ConsoleColor.Green;
 								Console.WriteLine("Success");
+								Console.ResetColor();
 							}
 							else
 							{
+								Console.ForegroundColor = ConsoleColor.Red;
 								Console.WriteLine("Password mismatch");
+								Console.ResetColor();
 							}
 
 							PrintReturnMainMenu();
@@ -62,7 +66,9 @@ namespace AccountManager
 
 							while (!tryParse2)
 							{
+								Console.ForegroundColor = ConsoleColor.Red;
 								Console.WriteLine("Uncorrect dates");
+								Console.ResetColor();
 								PrintReturnMainMenu();
 								tryParse2 = int.TryParse(Console.ReadLine(), out answerRetutn);
 							}
@@ -148,7 +154,9 @@ namespace AccountManager
 			{
 				if (user.Login == userLogin)
 				{
+					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine("This login is exist");
+					Console.ResetColor();
 					Console.WriteLine($"your login is {user.Login} password is {user.Password}");
 					Console.WriteLine("Do you want to decrypt your password? \n1.Yes \n2.No");
 					int answer = int.Parse(Console.ReadLine());
@@ -160,17 +168,23 @@ namespace AccountManager
 						try
 						{
 							string toDecrypt = first.Decrypt(user.Password, key);
+							Console.ForegroundColor = ConsoleColor.Green;
 							Console.WriteLine($"Your password is {toDecrypt}");
+							Console.ResetColor();
 						}
 						catch (Exception)
 						{
+							Console.ForegroundColor = ConsoleColor.Red;
 							Console.WriteLine("Your code is wrong. Try again");
+							Console.ResetColor();
 						}
 					}
 					return;
 				}
 			}
+			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("This login is not founded");
+			Console.ResetColor();
 		}
 
 		public static void GetDelete()
@@ -183,7 +197,9 @@ namespace AccountManager
 				{
 					Console.WriteLine("This login is exist");
 					//Console.WriteLine($"your login is {user.Login} password is {user.Password}");
+					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine($"Are you sure want to delete {user.Login}? \n1.Yes \n2.No");
+					Console.ResetColor();
 					int answer = int.Parse(Console.ReadLine());
 					if (answer == 1)
 					{
@@ -200,13 +216,17 @@ namespace AccountManager
 						}
 						catch (Exception)
 						{
+							Console.ForegroundColor = ConsoleColor.Red;
 							Console.WriteLine("Your code is wrong. Try again");
+							Console.ResetColor();
 						}
 					}
 					return;
 				}
 			}
+			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("This login is not founded");
+			Console.ResetColor();
 		}
 
 
