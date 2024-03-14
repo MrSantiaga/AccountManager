@@ -132,11 +132,11 @@ namespace AccountManager
 
 		public static void AddUser(string login, string password, string key)
 		{
-			UserData user1 = new UserData();
-			user1.Login = login;
-			user1.Password = encryptor.Encrypt(password, key);
-			Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
-			dataBase.AllUserData.Add(user1);
+			UserData user = new UserData();
+			user.Login = login;
+			user.Password = encryptor.Encrypt(password, key);
+			Console.WriteLine($"User login is  {user.Login}  user password is {user.Password}");
+			dataBase.AllUserData.Add(user);
 			string serializedText = JsonConvert.SerializeObject(dataBase);
 			File.WriteAllText(path, serializedText);
 		}
