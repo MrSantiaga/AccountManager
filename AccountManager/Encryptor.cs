@@ -23,7 +23,7 @@ namespace AccountManager
 			_aes.Dispose();
 		}
 
-		public string Encrypt(string password, string key)
+		public string Encrypt(string plainText, string key)
 		{
 			byte[] keyBytes = GetKey(key);
 			_aes.Key = keyBytes;
@@ -32,7 +32,7 @@ namespace AccountManager
 			using CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
 			using (StreamWriter sw = new StreamWriter(cs))
 			{
-				sw.Write(password);
+				sw.Write(plainText);
 			}
 			byte[] encryptedPassword = ms.ToArray();
 			string encryptedPasswordText = Convert.ToBase64String(encryptedPassword);

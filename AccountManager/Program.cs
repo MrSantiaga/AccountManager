@@ -6,20 +6,22 @@ namespace AccountManager
 	{
 		static DataBase dataBase;
 		static string path = "C:\\Users\\Alexa\\Desktop\\test\\Dates.json";
+		static Encryptor encryptor = new Encryptor();
+
 		static void Main(string[] args)
 		{
 			dataBase = InitData();
 			Menu();
 		}
 
-		static public void Menu()
+		public static void Menu()
 		{
 			while (true)
 			{
 				PrintMainMenu();
 
 				uint choice;
-				while (!uint.TryParse(Console.ReadLine(), out choice) || choice > 5)
+				while (!uint.TryParse(ReadNotNullableLine(), out choice) || choice > 5)
 				{
 					Console.WriteLine("Invalid value. Try again");
 				}
@@ -29,7 +31,8 @@ namespace AccountManager
 					case 1:
 						{
 							Console.WriteLine("Add your dates to sign. \nAdd your login");
-							string login = Console.ReadLine();
+							string login = ReadNotNullableLine();
+
 							foreach (UserData user in dataBase.AllUserData)
 							{
 								while (user.Login == login)
@@ -38,15 +41,15 @@ namespace AccountManager
 									Console.WriteLine("This login is used");
 									Console.ResetColor();
 									Console.WriteLine("Try again");
-									login = Console.ReadLine();
+									login = ReadNotNullableLine();
 								}
 							}
 							Console.WriteLine("Add your password");
-							string password = Console.ReadLine();
+							string password = ReadNotNullableLine();
 							Console.WriteLine("Add your key");
-							string key = Console.ReadLine();
+							string key = ReadNotNullableLine();
 							Console.WriteLine("Confirm your key, please");
-							string keyCofirm = Console.ReadLine();
+							string keyCofirm = ReadNotNullableLine();
 							if (key == keyCofirm)
 							{
 								AddUser(login, password, key);
@@ -61,20 +64,18 @@ namespace AccountManager
 								Console.ResetColor();
 							}
 
+							int answerReturn;
 							PrintReturnMainMenu();
-							bool tryParse2 = int.TryParse(Console.ReadLine(), out int answerRetutn);
-
-							while (!tryParse2)
+							while (!int.TryParse(ReadNotNullableLine(), out answerReturn))
 							{
 								Console.ForegroundColor = ConsoleColor.Red;
 								Console.WriteLine("Uncorrect dates");
 								Console.ResetColor();
 								PrintReturnMainMenu();
-								tryParse2 = int.TryParse(Console.ReadLine(), out answerRetutn);
 							}
-							if (answerRetutn == 1)
+							if (answerReturn != 1)
 							{
-								continue;
+								return;
 							}
 							break;
 						}
@@ -92,17 +93,20 @@ namespace AccountManager
 					case 3:
 						{
 							Console.WriteLine("Enter your login");
-							string userLogin = Console.ReadLine();
-							GetSearch(userLogin);
+							string login = ReadNotNullableLine();
+							SearchByLogin(login);
 							Console.WriteLine("Press key to continue");
 							Console.ReadKey();
 							break;
 						}
 					case 4:
 						{
-							GetDelete();
+							Console.WriteLine("Enter your login");
+							string userLogin = ReadNotNullableLine();
+							GetDelete(userLogin);
 							break;
 						}
+
 				}
 			}
 		}
@@ -112,27 +116,29 @@ namespace AccountManager
 			Console.Clear();
 			Console.WriteLine("Welcome to Account Manager");
 			Console.WriteLine("Menu:");
-			Console.WriteLine("1. - Add new credentails ");
-			Console.WriteLine("2. - List all credentiles");
-			Console.WriteLine("3. - Find and show credentiles");
-			Console.WriteLine("4. - Delete credentiles");
+			Console.WriteLine("1. - Add new credentials ");
+			Console.WriteLine("2. - List all credentials");
+			Console.WriteLine("3. - Find and show credentials");
+			Console.WriteLine("4. - Delete credentials");
 			Console.WriteLine("0. - Exit");
 		}
 
 		private static void PrintReturnMainMenu()
 		{
 			Console.WriteLine("Do you want to return to menu?\n 1. - Yes\n 2. - No");
+			Console.WriteLine("1. - Yes");
+			Console.WriteLine("2. - No");
 		}
 
-
-		public static void AddUserDatesJson(string login, string encryptedPassword)
+		public static void AddUser(string login, string password, string key)
 		{
-			UserData user = new UserData();
-			user.Login = login;
-			user.Password = encryptedPassword;
-			dataBase.AllUserData.Add(user);
-			string resultTry = JsonConvert.SerializeObject(dataBase);
-			File.WriteAllText(path, resultTry);
+			UserData user1 = new UserData();
+			user1.Login = login;
+			user1.Password = encryptor.Encrypt(password, key);
+			Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
+			dataBase.AllUserData.Add(user1);
+			string serializedText = JsonConvert.SerializeObject(dataBase);
+			File.WriteAllText(path, serializedText);
 		}
 
 		private static DataBase InitData()
@@ -148,7 +154,7 @@ namespace AccountManager
 			return dataBase;
 		}
 
-		public static void GetSearch(string userLogin)
+		public static void SearchByLogin(string userLogin)
 		{
 			foreach (UserData user in dataBase.AllUserData)
 			{
@@ -159,17 +165,16 @@ namespace AccountManager
 					Console.ResetColor();
 					Console.WriteLine($"your login is {user.Login} password is {user.Password}");
 					Console.WriteLine("Do you want to decrypt your password? \n1.Yes \n2.No");
-					int answer = int.Parse(Console.ReadLine());
+					int answer = int.Parse(ReadNotNullableLine());
 					if (answer == 1)
 					{
-						using Encryptor first = new Encryptor();
 						Console.WriteLine("Enter your key");
-						string key = Console.ReadLine();
+						string key = ReadNotNullableLine();
 						try
 						{
-							string toDecrypt = first.Decrypt(user.Password, key);
+							string decryptedPassword = encryptor.Decrypt(user.Password, key);
 							Console.ForegroundColor = ConsoleColor.Green;
-							Console.WriteLine($"Your password is {toDecrypt}");
+							Console.WriteLine($"Your password is {decryptedPassword}");
 							Console.ResetColor();
 						}
 						catch (Exception)
@@ -187,28 +192,25 @@ namespace AccountManager
 			Console.ResetColor();
 		}
 
-		public static void GetDelete()
+		public static void GetDelete(string login)
 		{
-			Console.WriteLine("Enter your login");
-			string userLogin = Console.ReadLine();
 			foreach (UserData user in dataBase.AllUserData)
 			{
-				if (user.Login == userLogin)
+				if (user.Login == login)
 				{
 					Console.WriteLine("This login is exist");
 					//Console.WriteLine($"your login is {user.Login} password is {user.Password}");
 					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine($"Are you sure want to delete {user.Login}? \n1.Yes \n2.No");
 					Console.ResetColor();
-					int answer = int.Parse(Console.ReadLine());
+					int answer = int.Parse(ReadNotNullableLine());
 					if (answer == 1)
 					{
-						using Encryptor first = new Encryptor();
 						Console.WriteLine("Enter your key");
-						string key = Console.ReadLine();
+						string key = ReadNotNullableLine();
 						try
 						{
-							string toDecrypt = first.Decrypt(user.Password, key);
+							string toDecrypt = encryptor.Decrypt(user.Password, key);
 							dataBase.AllUserData.Remove(user);
 							string resultTry = JsonConvert.SerializeObject(dataBase);
 							File.WriteAllText(path, resultTry);
@@ -217,7 +219,7 @@ namespace AccountManager
 						catch (Exception)
 						{
 							Console.ForegroundColor = ConsoleColor.Red;
-							Console.WriteLine("Your code is wrong. Try again");
+							Console.WriteLine("Your key is wrong. Try again");
 							Console.ResetColor();
 						}
 					}
@@ -229,16 +231,25 @@ namespace AccountManager
 			Console.ResetColor();
 		}
 
-
-		public static void AddUser(string login, string password, string key)
+		public static string ReadNotNullableLine()
 		{
-			UserData user1 = new UserData();
-			using Encryptor first = new Encryptor();
-			user1.Login = login;
-			user1.Password = first.Encrypt(password, key);
-			Console.WriteLine($"User login is  {user1.Login}  user password is {user1.Password}");
-			AddUserDatesJson(user1.Login, user1.Password);
+			string text;
+			while (true)
+			{
+				text = Console.ReadLine();
+				if (string.IsNullOrWhiteSpace(text))
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Input is empty");
+					Console.ResetColor();
+					Console.WriteLine("Try again");
+				}
+				else
+				{
+					return text;
+				}
+			}
 		}
-
 	}
 }
+
