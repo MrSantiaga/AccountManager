@@ -66,12 +66,3 @@ namespace AccountManager
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
